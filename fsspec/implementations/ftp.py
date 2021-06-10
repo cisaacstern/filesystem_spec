@@ -246,7 +246,8 @@ class FTPFile(AbstractBufferedFile):
                 raise TransferDone
 
         try:
-            print("In try block, timeout is", self.timeout)
+            print("In FTPFile try block, fs type is", type(self.fs))
+            print("In FTPFile try block, timeout is", self.fs.timeout)
             self.fs.ftp.retrbinary(
                 "RETR %s" % self.path,
                 blocksize=self.blocksize,
