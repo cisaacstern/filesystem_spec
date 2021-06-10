@@ -63,7 +63,9 @@ class FTPFileSystem(AbstractFileSystem):
         self._connect()
 
     def _connect(self):
+        print("In _connect, timeout is", self.timeout)
         self.ftp = FTP(timeout=self.timeout)
+        print("In self.ftp, timeout is", self.ftp.timeout)
         self.ftp.connect(self.host, self.port)
         self.ftp.login(*self.cred)
 
@@ -244,6 +246,7 @@ class FTPFile(AbstractBufferedFile):
                 raise TransferDone
 
         try:
+            print("In try block, timeout is", self.timeout)
             self.fs.ftp.retrbinary(
                 "RETR %s" % self.path,
                 blocksize=self.blocksize,
