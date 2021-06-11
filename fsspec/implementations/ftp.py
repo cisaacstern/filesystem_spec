@@ -247,21 +247,17 @@ class FTPFile(AbstractBufferedFile):
         try:
             print(f"""In `FTPFile._fetch_range`,
             `self.fs.timeout` is {self.fs.timeout},
-            `self.fs.ftp.timeout` is {self.fs.ftp.timeout},
+            `self.fs.ftp.timeout` is {self.fs.ftp.timeout}.
             """)
-            try:
-                t_start = time.time()
-                self.fs.ftp.retrbinary(
-                    "RETR %s" % self.path,
-                    blocksize=self.blocksize,
-                    rest=start,
-                    callback=callback,
-                )
-                t_end = time.time()
-                print(f"`self.fs.ftp.retrbinary` execution completed in {t_end - t_start}s")
-            except:
-                t_end = time.time()
-                print(f"`self.fs.ftp.retrbinary` execution timed out in {t_end - t_start}s")
+            t_start = time.time()
+            self.fs.ftp.retrbinary(
+                "RETR %s" % self.path,
+                blocksize=self.blocksize,
+                rest=start,
+                callback=callback,
+            )
+            t_end = time.time()
+            print(f"`self.fs.ftp.retrbinary` execution completed in {t_end - t_start}s")
         except TransferDone:
             try:
                 # stop transfer, we got enough bytes for this block
