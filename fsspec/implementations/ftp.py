@@ -1,3 +1,4 @@
+import time
 import uuid
 from ftplib import FTP, Error, error_perm
 
@@ -63,9 +64,7 @@ class FTPFileSystem(AbstractFileSystem):
         self._connect()
 
     def _connect(self):
-        print("In _connect, timeout is", self.timeout)
         self.ftp = FTP(timeout=self.timeout)
-        print("In self.ftp, timeout is", self.ftp.timeout)
         self.ftp.connect(self.host, self.port)
         self.ftp.login(*self.cred)
 
@@ -246,14 +245,23 @@ class FTPFile(AbstractBufferedFile):
                 raise TransferDone
 
         try:
-            print("In FTPFile try block, fs type is", type(self.fs))
-            print("In FTPFile try block, timeout is", self.fs.timeout)
-            self.fs.ftp.retrbinary(
-                "RETR %s" % self.path,
-                blocksize=self.blocksize,
-                rest=start,
-                callback=callback,
-            )
+            print(f"""In `FTPFile._fetch_range`,
+            `self.fs.timeout` is {self.fs.timeout},
+            `self.fs.ftp.timeout` is {self.fs.ftp.timeout},
+            """)
+            try:
+                t_start = time.time()
+                self.fs.ftp.retrbinary(
+                    "RETR %s" % self.path,
+                    blocksize=self.blocksize,
+                    rest=start,
+                    callback=callback,
+                )
+                t_end = time.time()
+                print(f"`self.fs.ftp.retrbinary` execution completed in {t_end - t_start}s")
+            except:
+                t_end = time.time()
+                print(f"`self.fs.ftp.retrbinary` execution timed out in {t_end - t_start}s")
         except TransferDone:
             try:
                 # stop transfer, we got enough bytes for this block
