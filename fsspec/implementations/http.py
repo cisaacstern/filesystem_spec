@@ -675,8 +675,16 @@ async def _file_size(url, session=None, size_policy="head", **kwargs):
         #  recognise lack of 'Accept-Ranges', or  'Accept-Ranges': 'none' (not 'bytes')
         #  to mean streaming only, no random access => return None
         if "Content-Length" in r.headers:
+            logger.debug(
+                f"`size_policy` is {size_policy}"
+                f'"Content-Length" is {int(r.headers["Content-Length"])}'
+            )
             return int(r.headers["Content-Length"])
         elif "Content-Range" in r.headers:
+            logger.debug(
+                f"`size_policy` is {size_policy}"
+                f'"Content-Range" is {int(r.headers["Content-Length"])}'
+            )
             return int(r.headers["Content-Range"].split("/")[1])
         r.close()
 
