@@ -730,7 +730,7 @@ def _dump_running_tasks(
                     k: (
                         repr(v)
                         if k != "result"
-                        else ("CIMultiDictProxy(...)", "Byte string redacted here.")
+                        else [repr(type(item)) for item in v]
                     )
                     for k, v in task._coro.cr_frame.f_locals.items()
                 },
