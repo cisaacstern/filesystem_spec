@@ -723,24 +723,32 @@ def _dump_running_tasks(
         [task.print_stack() for task in tasks]
     out = {}
     for task in tasks:
-        d = {
-            repr(task): {
-                "task.get_stack": [repr(s) for s in task.get_stack()],
-                "locals": {
-                    k: (
-                        repr(v)
-                        if k != "result"
-                        else [repr(type(item)) for item in v]
-                    )
-                    for k, v in task._coro.cr_frame.f_locals.items()
-                },
-                "file": task._coro.cr_frame.f_code.co_filename,
-                "firstline": task._coro.cr_frame.f_code.co_firstlineno,
-                "linelo": task._coro.cr_frame.f_lineno,
-                "traceback.format_stack": traceback.format_stack(task._coro.cr_frame),
-                "task": task if with_task else None,
+        if task._coro.cr_frame:
+            d = {
+                repr(task): {
+                    "task.get_stack": [repr(s) for s in task.get_stack()],
+                    "locals": {
+                        k: (
+                            repr(v)
+                            if k != "result"
+                            else [repr(type(item)) for item in v]
+                        )
+                        for k, v in task._coro.cr_frame.f_locals.items()
+                    },
+                    "file": task._coro.cr_frame.f_code.co_filename,
+                    "firstline": task._coro.cr_frame.f_code.co_firstlineno,
+                    "linelo": task._coro.cr_frame.f_lineno,
+                    "traceback.format_stack": traceback.format_stack(task._coro.cr_frame),
+                    "task": task if with_task else None,
+                }
             }
-        }
+        else:
+            d = {
+                repr(task): {
+                    "task.get_stack": [repr(s) for s in task.get_stack()],
+                    "task._coro.cr_frame": "None",
+                }
+            }
         out.update(d)
     assert len(out.keys()) == len(tasks)
 
