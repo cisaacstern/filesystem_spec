@@ -721,17 +721,29 @@ def _dump_running_tasks(
     tasks = [t for t in asyncio.tasks.all_tasks(loop[0]) if not t.done()]
     if printout:
         [task.print_stack() for task in tasks]
-    out = [
-        {
-            "locals": task._coro.cr_frame.f_locals,
-            "file": task._coro.cr_frame.f_code.co_filename,
-            "firstline": task._coro.cr_frame.f_code.co_firstlineno,
-            "linelo": task._coro.cr_frame.f_lineno,
-            "stack": traceback.format_stack(task._coro.cr_frame),
-            "task": task if with_task else None,
+    out = {}
+    for task in tasks:
+        d = {
+            repr(task): {
+                "task.get_stack": [repr(s) for s in task.get_stack()],
+                "locals": {
+                    k: (
+                        repr(v)
+                        if k != "result"
+                        else ("CIMultiDictProxy(...)", "Byte string redacted here.")
+                    )
+                    for k, v in task._coro.cr_frame.f_locals.items()
+                },
+                "file": task._coro.cr_frame.f_code.co_filename,
+                "firstline": task._coro.cr_frame.f_code.co_firstlineno,
+                "linelo": task._coro.cr_frame.f_lineno,
+                "traceback.format_stack": traceback.format_stack(task._coro.cr_frame),
+                "task": task if with_task else None,
+            }
         }
-        for task in tasks
-    ]
+        out.update(d)
+    assert len(out.keys()) == len(tasks)
+
     if cancel:
         for t in tasks:
             cbs = t._callbacks
