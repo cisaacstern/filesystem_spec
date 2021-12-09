@@ -145,6 +145,7 @@ class SFTPFileSystem(AbstractFileSystem):
             f.discard = types.MethodType(discard_a_file, f)
         else:
             f = self.ftp.open(path, mode, bufsize=block_size if block_size else -1)
+        f.prefetch()
         return f
 
     def _rm(self, path):
